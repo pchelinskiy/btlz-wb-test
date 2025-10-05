@@ -4,7 +4,7 @@
  */
 export async function up(knex) {
     return knex.schema.createTable("spreadsheets", (table) => {
-        table.string("spreadsheet_id").primary();
+        table.string("id").primary();
     });
 }
 

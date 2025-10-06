@@ -51,7 +51,7 @@ class App {
     }
 
     private startUpdateTables(minutes: number): void {
-        setAsyncInterval(() => updateGoogleTables(this.tariffRepository, this.spreadsheetRepository, this.googleSheetsClient), minutes * 60 * 1000);
+        setTimeout(() => setAsyncInterval(() => updateGoogleTables(this.tariffRepository, this.spreadsheetRepository, this.googleSheetsClient), minutes * 60 * 1000), 5000);
     }
 }
 

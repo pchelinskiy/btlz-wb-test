@@ -45,7 +45,6 @@ export default async function updateGoogleTables(
             } catch (err) {
                 logger.error({ spreadsheetId: spreadsheet.id, err }, "Failed to update sheet");
                 failedUpdates++;
-                throw err;
             }
         });
     }

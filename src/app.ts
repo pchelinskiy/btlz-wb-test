@@ -53,6 +53,8 @@ class App {
     private startUpdateTables(minutes: number): void {
         setTimeout(() => setAsyncInterval(() => updateGoogleTables(this.tariffRepository, this.spreadsheetRepository, this.googleSheetsClient), minutes * 60 * 1000), 5000);
     }
+
+    // TODO: add global error handler for scheduled jobs
 }
 
 new App().start();

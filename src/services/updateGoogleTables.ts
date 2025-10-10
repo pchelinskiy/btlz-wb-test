@@ -2,7 +2,7 @@ import PQueue from "p-queue";
 
 import getCurrentDateWithoutTZ from "#utils/date.js";
 import logger from "#logger/pino.js";
-import GoogleSheetsClient from "#clients/google-client.js";
+import GoogleSheetsClient from "#google-client/google-client.js";
 import GoogleTariffMapper from "#mappers/google-tariff-mapper.js";
 import ITariffRepository from "#repositories/tariff-repository.interface.js";
 import ISpreadsheetRepository from "#repositories/spreadsheet-repository.interface.js";

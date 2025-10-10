@@ -1,5 +1,5 @@
 import Tariff from "#models/tariff.js";
-import WBBoxTariffResponse from "#dtos/wb-box-tariff.js";
+import WBBoxTariffResponse from "#wb-client/wb-box-tariff.js";
 
 export default class WBTariffMapper {
     public static toModel(tariffDTO: WBBoxTariffResponse, date: string): Tariff[] {

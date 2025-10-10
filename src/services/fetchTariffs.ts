@@ -1,4 +1,4 @@
-import WBClient from "#clients/wb-client.impl.js";
+import WBClient from "#wb-client/wb-client.js";
 import WBTariffMapper from "#mappers/wb-tariff-mapper.js";
 import ITariffRepository from "#repositories/tariff-repository.interface.js";
 import getCurrentDateWithoutTZ from "#utils/date.js";

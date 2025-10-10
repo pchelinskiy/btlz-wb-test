@@ -1,17 +1,17 @@
 import sheets from "@googleapis/sheets";
 
-import GoogleSheetsUpsert from "#dtos/google-sheets-upsert.js";
+import GoogleSheetsUpsert from "#google-client/google-sheets-upsert.js";
 import logger from "#logger/pino.js";
 import ExternalServiceException from "#exceptions/external-service-exception.js";
 import env from "#config/env/env.js";
 
 export default class GoogleSheetsClient {
     private sheets: ReturnType<typeof sheets.sheets>;
-    constructor() {
+    constructor(auth: { email: string; key: string; keyId: string }) {
         const jwtOptions = {
-            email: env.CLIENT_EMAIL,
-            key: env.PRIVATE_KEY?.replace(/\\n/g, "\n"),
-            keyId: env.PRIVATE_KEY_ID,
+            email: auth.email,
+            key: auth.key.replace(/\\n/g, "\n"),
+            keyId: auth.keyId,
             scopes: ["https://www.googleapis.com/auth/spreadsheets"],
         };
 
@@ -26,24 +26,41 @@ export default class GoogleSheetsClient {
     public async upsertSheetData(spreadsheetId: string, sheetTitle: string, dto: GoogleSheetsUpsert) {
         try {
             await this.writeValues(spreadsheetId, sheetTitle, dto);
-        } catch (e) {
-            if (this.isMissingSheetError(e)) {
+        } catch (err) {
+            if (this.isMissingSheetError(err)) {
                 logger.warn(`[Sheets] Sheet "${sheetTitle}" not found. Creating...`);
                 await this.createSheet(spreadsheetId, sheetTitle);
                 await this.writeValues(spreadsheetId, sheetTitle, dto);
             } else {
-                throw new ExternalServiceException(`Failed upserting google table with id ${spreadsheetId}`, e);
+                throw new ExternalServiceException(`Failed upserting google table with id ${spreadsheetId}`, err);
             }
         }
     }
 
+    public async createSheet(spreadsheetId: string, sheetTitle: string) {
+        try {
+            await this._createSheet(spreadsheetId, sheetTitle);
+        } catch (err) {
+            throw new ExternalServiceException(`Failed creating google sheet with table id ${spreadsheetId}`, err);
+        }
+    }
+
+    public async writeValues(spreadsheetId: string, sheetTitle: string, dto: GoogleSheetsUpsert) {
+        try {
+            await this._writeValues(spreadsheetId, sheetTitle, dto);
+        } catch (err) {
+            throw new ExternalServiceException(`Failed write values into google table with id ${spreadsheetId}: `, err);
+        }
+    }
+
     private isMissingSheetError(err: any) {
-        const message = err?.errors?.[0]?.message || err?.message || "";
+        const message = err?.cause?.errors?.[0]?.message || err?.cause?.message || "";
+        console.log(message);
         return message.includes("Unable to parse range") || message.includes("Invalid sheet name") || message.includes("Requested entity was not found");
     }
 
-    private async writeValues(spreadsheetId: string, sheetTitle: string, dto: GoogleSheetsUpsert) {
-        this.executeWithRetry(() =>
+    private async _writeValues(spreadsheetId: string, sheetTitle: string, dto: GoogleSheetsUpsert) {
+        return this.executeWithRetry(() =>
             this.sheets.spreadsheets.values.update({
                 spreadsheetId: spreadsheetId,
                 range: `${sheetTitle}!A1`,
@@ -53,8 +70,8 @@ export default class GoogleSheetsClient {
         );
     }
 
-    private async createSheet(spreadsheetId: string, sheetTitle: string) {
-        this.executeWithRetry(() =>
+    private async _createSheet(spreadsheetId: string, sheetTitle: string) {
+        return this.executeWithRetry(() =>
             this.sheets.spreadsheets.batchUpdate({
                 spreadsheetId: spreadsheetId,
                 requestBody: {

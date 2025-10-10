@@ -1,4 +1,4 @@
-import GoogleSheetsUpsert from "#dtos/google-sheets-upsert.js";
+import GoogleSheetsUpsert from "#google-client/google-sheets-upsert.js";
 import Tariff from "#models/tariff.js";
 
 export default class GoogleTariffMapper {
